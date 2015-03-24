@@ -1,0 +1,97 @@
+---
+title: "PA2_new"
+author: "alanpoon"
+date: "Saturday, March 21, 2015"
+output: html_document
+---
+## Impact of Severe Weather Events on Public Health and Economy in the United States
+
+### Synopsis 
+In this report analysis, our aim is to investigate severity of weather disaster on the citizens in US from 1995-2011. We will base the severity by the number of people killed and the property damaged by the disaster. From these data, we found that Tornado, excess heat and flash flood, claimed the number of people's lives. Of these three types of disaster, only excess heat does not cause severe property damaged. 
+
+
+### Basic Setup
+```{r}
+echo = TRUE 
+library(ggplot2)
+library(data.table)
+library(plyr)
+```
+Ggplot2 library is used to plot the charts. Data.table library is used to perform data aggregation and plyr library is used for a function to obtain the disaster types with the most fatalities and property damaged.
+
+### Data Installation
+First, we download the data file and unzip it
+```{r, echo=FALSE}
+setwd("C:/Users/alanpoon/Desktop/coursera/Reproducible Research/RepData_PeerAssessment2/RepData_PeerAssessment2")
+
+if (!"stormData.csv.bz2" %in% dir("../data/")) {
+    print("hhhh")
+    download.file("http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", destfile = "../data/stormData.csv.bz2")
+    bunzip2("../data/stormData.csv.bz2", overwrite=T, remove=F)
+}
+```
+
+Then, we read the generated csv file. If the data already exists in the working environment, we do not need to load it again. Otherwise, we read the csv file.
+
+```{r}
+if (!"stormData" %in% ls()) {
+    stormData <- data.table(read.csv("../data/stormData.csv", sep = ","))
+}
+dim(stormData)
+head(stormData, n = 2)
+
+```
+
+### Helper Functions
+Next, we define some functions to help us create the plots.
+```{r}
+
+#function that will sort the 15 most impactful weather type
+sort15<- function(data,impactedField){
+##use get() in the sum function in the datatable structure
+  df<-as.data.frame(data[, sum(get(impactedField), na.rm=TRUE), by=EVTYPE])
+  top<-15
+    sorted<- arrange(df,desc(V1))
+  sorted[c(1:15),]
+}
+
+
+simpleCap <- function(x) {
+  s <- strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1,1)), substring(s, 2),
+        sep="", collapse=" ")
+}
+
+plotChart<-function(sortedData,impactedField,plotName){
+  # on png device
+  formattedString<-simpleCap(impactedField)
+  ggTitleString<-paste('Total ',formattedString,' in US From 1995-2011',sep="")
+ 
+  g<-ggplot(data=sortedData, aes(x=reorder(EVTYPE,desc(V1)), y=V1)) +
+    geom_bar(stat="identity") +
+    
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+    labs(y=formattedString,x='Weather Types') +
+    ggtitle(ggTitleString)
+  print(g)
+  
+}
+
+```
+### Data processing
+```{r}
+sortedFatalities<-sort15(stormData,"FATALITIES")
+sortedPropDmg<-sort15(stormData,"PROPDMG")
+```
+We create two data frames, sortedFatalities and sortedPropDmg.
+
+### Plotting
+```{r}
+plotChart(sortedFatalities,"FATALITIES","Fatalities.png")
+plotChart(sortedPropDmg,"PROPDMG","PropertyDmg.png")
+```
+
+
+### Conclusion  
+Based on the two plot figures, we found that Tornado,Excess Heat and Flash Flood took the most number of lives. Tornado, Flash and Wind dealt the greatest property damage.
+
