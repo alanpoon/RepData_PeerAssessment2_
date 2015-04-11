@@ -11,7 +11,7 @@ In this report analysis, our aim is to investigate severity of weather disaster 
 
 
 ### Basic Setup
-```{r}
+```{r message=FALSE,warning=FALSE}
 echo = TRUE 
 library(ggplot2)
 library(data.table)
@@ -33,7 +33,7 @@ if (!"stormData.csv.bz2" %in% dir("../data/")) {
 
 Then, we read the generated csv file. If the data already exists in the working environment, we do not need to load it again. Otherwise, we read the csv file.
 
-```{r}
+```{r message=FALSE,warning=FALSE}
 if (!"stormData" %in% ls()) {
     stormData <- data.table(read.csv("../data/stormData.csv", sep = ","))
 }
@@ -79,14 +79,14 @@ plotChart<-function(sortedData,impactedField,plotName){
 
 ```
 ### Data processing
-```{r}
+```{r message=FALSE,warning=FALSE}
 sortedFatalities<-sort15(stormData,"FATALITIES")
 sortedPropDmg<-sort15(stormData,"PROPDMG")
 ```
 We create two data frames, sortedFatalities and sortedPropDmg.
 
 ### Plotting
-```{r}
+```{r message=FALSE,warning=FALSE}
 plotChart(sortedFatalities,"FATALITIES","Fatalities.png")
 plotChart(sortedPropDmg,"PROPDMG","PropertyDmg.png")
 ```
